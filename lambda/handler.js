@@ -73,19 +73,18 @@ const getItemById = async (event) => {
 };
 
 exports.handler = async (event) => {
-  switch (event.httpMethod) {
-    case 'POST':
-      return await addItem(event);
-    case 'GET':
-      if (event.resource === '/get-item/{id}') {
-        return await getItemById(event);
-      } else {
-        return await getItems();
-      }
-    default:
-      return {
-        statusCode: 405,
-        body: JSON.stringify({ success: false, message: 'Method Not Allowed' }),
-      };
+  const { httpMethod, path } = event;
+
+  if (httpMethod === 'POST' && path === '/add-item') {
+    return await addItem(event);
+  } else if (httpMethod === 'GET' && path === '/get-items') {
+    return await getItems();
+  } else if (httpMethod === 'GET' && path.startsWith('/get-item/')) {
+    return await getItemById(event);
+  } else {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ success: false, message: 'Method Not Allowed' }),
+    };
   }
 };
